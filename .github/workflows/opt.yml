@@ -37,6 +37,10 @@ jobs:
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
 
+      # 4.1️⃣ Install Nx CLI if not present
+      - name: Install Nx CLI
+        run: npm install --no-save nx
+
       # 5️⃣ Run affected builds
       - name: Run affected builds
         run: npx nx affected --target=build --parallel --max-parallel=3
