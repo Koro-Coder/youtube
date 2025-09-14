@@ -1,0 +1,51 @@
+name: Nx Monorepo CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ Checkout the repo
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2️⃣ Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'   # caches based on lockfile
+
+      # 3️⃣ Cache Nx build cache
+      - name: Cache Nx
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            .nx/cache
+          key: ${{ runner.os }}-nx-${{ hashFiles('**/package-lock.json', '**/yarn.lock', '**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-nx-
+
+      # 4️⃣ Install dependencies
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      # 5️⃣ Run affected builds
+      - name: Run affected builds
+        run: npx nx affected --target=build --parallel --max-parallel=3
+
+      # 6️⃣ Upload build artifacts (optional)
+      - name: Upload build output
+        uses: actions/upload-artifact@v4
+        with:
+          name: nx-build-output
+          path: |
+            dist/apps/**
+            dist/libs/**
