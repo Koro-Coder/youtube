@@ -15,37 +15,38 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2️⃣ Setup Node.js
+      # 2️⃣ Setup Node.js with npm caching
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
-          cache: 'npm'   # caches based on lockfile
+          cache: 'npm'
 
-      # 3️⃣ Cache Nx build cache
-      - name: Cache Nx
+      # 3️⃣ Cache dependencies + Nx cache
+      - name: Cache dependencies and Nx cache
         uses: actions/cache@v4
         with:
           path: |
             node_modules
             .nx/cache
-          key: ${{ runner.os }}-nx-${{ hashFiles('**/package-lock.json', '**/yarn.lock', '**/pnpm-lock.yaml') }}
+            ~/.npm          # cache global npm installs (for Nx)
+          key: ${{ runner.os }}-deps-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-nx-
-
-      # 3.1️⃣ Initialize Nx if not already initialized
-      - name: proxy
-        run: npx nx@latest init
+            ${{ runner.os }}-deps-
 
       # 4️⃣ Install dependencies
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
 
-      # 5️⃣ Run affected builds
-      - name: Run affected builds
-        run: npx nx affected --target=build --parallel --max-parallel=3
+      # 5️⃣ Install Nx globally (only once per runner, cached in ~/.npm)
+      - name: Install Nx globally
+        run: npm install -g nx@latest
 
-      # 6️⃣ Upload build artifacts (optional)
+      # 6️⃣ Run affected builds
+      - name: Run affected builds
+        run: nx affected --target=build --parallel --max-parallel=3
+
+      # 7️⃣ Upload build artifacts (optional)
       - name: Upload build output
         uses: actions/upload-artifact@v4
         with:
