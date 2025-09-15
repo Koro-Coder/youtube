@@ -15,42 +15,40 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2️⃣ Setup Node.js with npm caching
+      # 2️⃣ Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
           cache: 'npm'
 
-      # 3️⃣ Cache dependencies + Nx cache
-      - name: Cache dependencies and Nx cache
+      # 3️⃣ Cache dependencies + Nx + workspace setup
+      - name: Cache deps + Nx cache
         uses: actions/cache@v4
         with:
           path: |
             node_modules
             .nx/cache
-            ~/.npm          # cache global npm installs (for Nx)
-          key: ${{ runner.os }}-deps-${{ hashFiles('**/package-lock.json') }}
+            ~/.npm
+            nx.json
+            package.json
+            package-lock.json
+          key: ${{ runner.os }}-nx-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-deps-
+            ${{ runner.os }}-nx-
 
       # 4️⃣ Install dependencies
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
 
-      # 5️⃣ Install Nx globally (only once per runner, cached in ~/.npm)
+      # 5️⃣ Initialize Nx workspace (if not already initialized)
+      - name: Initialize Nx
+        run: npx nx@latest init --yes
+
+      # 6️⃣ Install Nx globally
       - name: Install Nx globally
         run: npm install -g nx@latest
 
-      # 6️⃣ Run affected builds
+      # 7️⃣ Run affected builds
       - name: Run affected builds
         run: nx affected --target=build --parallel --max-parallel=3
-
-      # 7️⃣ Upload build artifacts (optional)
-      - name: Upload build output
-        uses: actions/upload-artifact@v4
-        with:
-          name: nx-build-output
-          path: |
-            dist/apps/**
-            dist/libs/**
