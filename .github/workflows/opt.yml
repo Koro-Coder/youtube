@@ -37,7 +37,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nx-
 
-      # 4️⃣ Install dependencies
+      # 4️⃣ Install dependencies 
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
 
