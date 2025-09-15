@@ -32,7 +32,7 @@ jobs:
           key: ${{ runner.os }}-nx-${{ hashFiles('**/package-lock.json', '**/yarn.lock', '**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-nx-
-            
+
       # 3.1️⃣ Initialize Nx if not already initialized
       - name: proxy
         run: npx nx@latest init
@@ -40,10 +40,6 @@ jobs:
       # 4️⃣ Install dependencies
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
-
-      # 4.1️⃣ Install Nx CLI if not present
-      - name: Install Nx CLI
-        run: npm install --no-save nx
 
       # 5️⃣ Run affected builds
       - name: Run affected builds
