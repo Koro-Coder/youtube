@@ -41,9 +41,7 @@ jobs:
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
 
-      # 5️⃣ Initialize Nx workspace (if not already initialized)
-      - name: Initialize Nx
-        run: npx nx@latest init --yes
+
 
       # 6️⃣ Install Nx globally
       - name: Install Nx globally
