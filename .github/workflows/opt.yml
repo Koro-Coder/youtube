@@ -32,7 +32,8 @@ jobs:
           key: ${{ runner.os }}-nx-${{ hashFiles('**/package-lock.json', '**/yarn.lock', '**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-nx-
-
+            
+      # 3.1️⃣ Initialize Nx if not already initialized
       - name: proxy
         run: npx nx@latest init
 
